@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB_NAME}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: db
+    command: >
+      sh -c "uvicorn schema:app --host 0.0.0.0 --port 8000"
+
+volumes:
+  pgdata:
